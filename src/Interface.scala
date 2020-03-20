@@ -1,6 +1,7 @@
 import scala.swing._
 import java.awt.Color
 import java.awt.{ Point, Rectangle }
+
 import scala.io.Source
 import javax.imageio.ImageIO
 import java.io.File
@@ -8,8 +9,8 @@ import java.awt.image.BufferedImage
 import scala.swing.event._
 
 
+
 object Interface extends SimpleSwingApplication {
-  
   
   val newButton   = new Button("New") 
   val undoButton  = new Button("Undo")
@@ -36,15 +37,27 @@ object Interface extends SimpleSwingApplication {
     maximumSize   = new Dimension(width,fullHeight)
     
     } 
-  
+    
+    
+    
     val topBar     = new FlowPanel
+    topBar.preferredSize = new Dimension(500,100)
     topBar.contents += newButton
     topBar.contents += undoButton
     topBar.contents += redoButton
     topBar.contents += colorButton
     topBar.contents += shapeButton
     
-    top.contents = topBar
+    val drawArea = new DrawArea()
+      
+    val container = new GridPanel(2,0)
+    container.contents += topBar
+    container.contents += drawArea
+    
+
+    topMenu.contents = container
+
+    
     
   val colorPanel = new Frame {
       val width = 250
@@ -148,6 +161,13 @@ object Interface extends SimpleSwingApplication {
         this.close()
       }
       
+  }
+    
+  val shapePanel = new Frame {
+    val width  = 250
+    val height = 100
+    preferredSize = new Dimension(width,height)
+    
   }
     
   
