@@ -168,6 +168,7 @@ object Interface extends SimpleSwingApplication {
     val height = 100
     preferredSize = new Dimension(width,height)
     
+    
   }
     
   
