@@ -1,0 +1,8 @@
+24.4 
+Luokat          : DrawArea johon kaikki piirtämiseen liittyvä tulee, sekä Interface jossa käyttöliittymä.
+Toiminnallisuus : Vapaa piirto toimii, mutta värin muuttaminen muuttaa kaikkien jo piirrettyjen viivojen väriä???. Ympyrän piirto aluillaan. Värin vaihto ja muodon vaihto toimivat
+                  käyttöliittymässä.
+Virheet         : Tuo väri ongelma. Sekä miten käyttöliittymän kaksi aluetta saataisiin parempiin mittasuhteisiin. Tällä hetkellä kaksi osaa eli menu ja piirtoalue ovat gridboxin 
+                  gridboxin sisällä jolloin ikkuna jakautuu puoliksi niiden välillä. Menulla on siis liikaa tilaa.
+Työmäärä        : 10h? ehkä 15h
+Edistyminen     : Vähän jäljessä. 
