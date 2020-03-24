@@ -23,6 +23,10 @@ object Interface extends SimpleSwingApplication {
     case clickEvent: ButtonClicked => 
       colorPanel.open()
   }
+  shapeButton.reactions += {
+    case clickEvent: ButtonClicked => 
+      shapePanel.open()
+  }
   
   val topMenu = new MainFrame {
     title = "Draw"
@@ -164,9 +168,30 @@ object Interface extends SimpleSwingApplication {
   }
     
   val shapePanel = new Frame {
-    val width  = 250
+    val width  = 500
     val height = 100
     preferredSize = new Dimension(width,height)
+    
+    val freeButton   = new Button("Free")
+    val circleButton = new Button("Circle")
+    val squareButton = new Button("Square")
+    val ellipseButton = new Button("Ellipse")
+    
+    contents = new GridPanel(1,4) {
+      contents ++= Vector(freeButton, circleButton, squareButton, ellipseButton)
+      listenTo(freeButton, circleButton, squareButton, ellipseButton)
+      reactions += {
+        case ButtonClicked(`freeButton`) => setShape(freeButton)
+        case ButtonClicked(`circleButton`) => setShape(circleButton)
+        case ButtonClicked(`squareButton`) => setShape(squareButton)
+        case ButtonClicked(`ellipseButton`) => setShape(ellipseButton)
+      }
+    }
+    
+    def setShape(button: Button) = {
+      Interface.shapeButton.text = button.text
+      this.close()
+    }
     
     
   }
