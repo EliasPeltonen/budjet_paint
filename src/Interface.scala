@@ -18,6 +18,7 @@ object Interface extends SimpleSwingApplication {
   val colorButton = new Button("Color")
   colorButton.background = new Color(255,255,255)
   val shapeButton = new Button("Shape")
+  shapeButton.text = "Free"
   
   colorButton.reactions += {
     case clickEvent: ButtonClicked => 
@@ -27,6 +28,7 @@ object Interface extends SimpleSwingApplication {
     case clickEvent: ButtonClicked => 
       shapePanel.open()
   }
+  
   
   val topMenu = new MainFrame {
     title = "Draw"
@@ -45,7 +47,7 @@ object Interface extends SimpleSwingApplication {
     
     
     val topBar     = new FlowPanel
-    topBar.preferredSize = new Dimension(500,100)
+    topBar.maximumSize = new Dimension(500,100)
     topBar.contents += newButton
     topBar.contents += undoButton
     topBar.contents += redoButton
@@ -170,7 +172,7 @@ object Interface extends SimpleSwingApplication {
   val shapePanel = new Frame {
     val width  = 500
     val height = 100
-    preferredSize = new Dimension(width,height)
+    minimumSize = new Dimension(width,height)
     
     val freeButton   = new Button("Free")
     val circleButton = new Button("Circle")
@@ -181,9 +183,9 @@ object Interface extends SimpleSwingApplication {
       contents ++= Vector(freeButton, circleButton, squareButton, ellipseButton)
       listenTo(freeButton, circleButton, squareButton, ellipseButton)
       reactions += {
-        case ButtonClicked(`freeButton`) => setShape(freeButton)
-        case ButtonClicked(`circleButton`) => setShape(circleButton)
-        case ButtonClicked(`squareButton`) => setShape(squareButton)
+        case ButtonClicked(`freeButton`)    => setShape(freeButton)
+        case ButtonClicked(`circleButton`)  => setShape(circleButton)
+        case ButtonClicked(`squareButton`)  => setShape(squareButton)
         case ButtonClicked(`ellipseButton`) => setShape(ellipseButton)
       }
     }
