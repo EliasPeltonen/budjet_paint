@@ -12,8 +12,11 @@ import scala.swing.event._
 import java.awt.RenderingHints
 
 class DrawArea() extends Panel {
-  preferredSize = new Dimension(500,500)
+  minimumSize = new Dimension(500,500)
   background = Color.white
+  // Application doesn't detect changing of shape from shape menu, edit here to test 
+  Interface.shapeButton.text = "Square"
+  
 
   listenTo(mouse.clicks, mouse.moves, keys)
   var path = new geom.GeneralPath
@@ -32,10 +35,17 @@ class DrawArea() extends Panel {
           g.setColor(x._1) 
           g.drawOval(x._2(0), x._2(1), x._2(2),x._2(3))         
           })
+        } 
+        if (!squares.isEmpty) {
+          squares.foreach(x => { 
+          g.setColor(x._1) 
+          g.drawRect(x._2(0), x._2(1), x._2(2),x._2(3))         
+          })
         }
         
 
       }
+  
      
   Interface.shapeButton.text match {
     case "Free" => {
@@ -102,9 +112,12 @@ class DrawArea() extends Panel {
       reactions += {
         case e: MousePressed =>
           p1 = e.point
+          println(p1.x + " ja " + p1.y)
           requestFocusInWindow()
         case e: MouseReleased => { 
           p2 = e.point
+          println(p2.x + " ja " + p2.y)
+          squareTo(p1,p2)
           repaint()
         }
         case KeyTyped(_, 'c', _, _) =>
@@ -113,9 +126,12 @@ class DrawArea() extends Panel {
       }
       
       def squareTo(p1:Point, p2:Point) {
-        if(p1.x < p2.x && p1.y > p2.y) {
-          squares += ((Interface.colorButton.background, Vector(p1.x,p1.y, p2.x-p1.x, p1.y-p2.y))) 
-        }
+        if(p1.x < p2.x) {
+          if (p1.y < p2.y) squares += ((Interface.colorButton.background, Vector(p1.x,p1.y, p2.x-p1.x, p2.y-p1.y))) 
+          else             squares += ((Interface.colorButton.background, Vector(p1.x,p1.y, p2.x-p1.x, p2.y-p1.y))) 
+        } else if (p1.x > p2.x)
+          if (p1.y < p2.y) squares += ((Interface.colorButton.background, Vector(p1.x,p1.y, p2.x-p1.x, p2.y-p1.y))) 
+          else             squares += ((Interface.colorButton.background, Vector(p1.x,p1.y, p2.x-p1.x, p2.y-p1.y))) 
       }
     }
     
