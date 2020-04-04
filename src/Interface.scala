@@ -18,7 +18,7 @@ object Interface extends SimpleSwingApplication {
   val colorButton = new Button("Color")
   colorButton.background = new Color(255,255,255)
   val shapeButton = new Button("Shape")
-  shapeButton.text = "Free"
+  shapeButton.text = "Circle"
   
   colorButton.reactions += {
     case clickEvent: ButtonClicked => 
