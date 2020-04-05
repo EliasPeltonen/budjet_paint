@@ -17,11 +17,10 @@ class DrawArea() extends Panel {
   minimumSize = new Dimension(500,500)
   background = Color.white
   // Application doesn't detect changing of shape from shape menu, edit here to test 
-  Interface.shapeButton.text = "Square"
+  Interface.shapeButton.text = "Free"
   var redo: Option[Shape] = None
 
   listenTo(mouse.clicks, mouse.moves, keys)
-  var path = new geom.GeneralPath
   var shapes  = Buffer[Shape]()
 
   
@@ -32,7 +31,6 @@ class DrawArea() extends Panel {
         g.drawString("Press left mouse button and drag to paint.", 10, h - 26)
         if (hasFocus) g.drawString("Press 'c' to clear.", 10, h - 10)
         g.setColor(Interface.colorButton.background)
-        g.draw(path)
 
         if (!shapes.isEmpty) {
           shapes.foreach(x => {
@@ -40,6 +38,7 @@ class DrawArea() extends Panel {
             if      (x.shape == "Circle") g.drawOval(x.pointVector(0), x.pointVector(1), x.pointVector(2), x.pointVector(3))
             else if (x.shape == "Square") g.drawRect(x.pointVector(0), x.pointVector(1), x.pointVector(2), x.pointVector(3))
             else if (x.shape == "Ellipse")g.drawOval(x.pointVector(0), x.pointVector(1), x.pointVector(2), x.pointVector(3))
+            else if (x.shape == "Line")   g.drawLine(x.pointVector(0), x.pointVector(1), x.pointVector(2), x.pointVector(3))
           })
         }
         
@@ -49,24 +48,25 @@ class DrawArea() extends Panel {
      
   Interface.shapeButton.text match {
     case "Free" => {
-      
-      def lineTo(p: Point): Unit = {
-        path.lineTo(p.x, p.y); repaint()
-      }
-  
-      def moveTo(p: Point): Unit = {
-        path.moveTo(p.x, p.y); repaint()
-        
-      }
+      var p1 = new Point(0,0)
+      var p2 = new Point(0,0)
             
       reactions += {
         case e: MousePressed =>
-          moveTo(e.point)
+          p1 = e.point
           requestFocusInWindow()
-        case e: MouseDragged  => lineTo(e.point)
-        case e: MouseReleased => lineTo(e.point)
+        case e: MouseDragged  => {
+          p2 = e.point
+          shapes += new Line(p1,p2, Interface.colorButton.background)
+          repaint()
+          p1 = e.point
+        }
+        case e: MouseReleased => {
+          p2 = e.point
+          shapes += new Line(p1,p2, Interface.colorButton.background)
+          repaint()
+        }
         case KeyTyped(_, 'c', _, _) =>
-          path = new geom.GeneralPath
           repaint()
         case _: FocusLost => repaint()
       }
@@ -180,6 +180,11 @@ class DrawArea() extends Panel {
           val points = parts(1).split(":")
           shapes += new Square(new Point(points(0).toInt,points(1).toInt), new Point(points(2).toInt, points(3).toInt), new Color(color(0).toInt, color(1).toInt, color(2).toInt)) 
         }
+        case "Line" => {
+          val color  = parts(0).split(":")
+          val points = parts(1).split(":")
+          shapes += new Line(new Point(points(0).toInt,points(1).toInt), new Point(points(2).toInt, points(3).toInt), new Color(color(0).toInt, color(1).toInt, color(2).toInt)) 
+        }
       }
     }
     bufferedSource.close()
@@ -200,7 +205,6 @@ class DrawArea() extends Panel {
   
   newButton.reactions += {
     case clickEvent: ButtonClicked =>
-      path = new geom.GeneralPath
       shapes.clear()
       repaint()
   }
@@ -223,9 +227,6 @@ class DrawArea() extends Panel {
       }
     }
   }
-
-  
-  
 }
 
 
@@ -237,6 +238,11 @@ trait Shape {
   val p1: Point
   val p2: Point
   
+}
+
+class Line(val p1: Point, val p2: Point, val color: Color) extends Shape {
+  val shape = "Line"
+  pointVector = Vector(p1.x, p1.y, p2.x, p2.y)
 }
 
 class Circle(val p1: Point, val p2: Point, val color: Color) extends Shape {
