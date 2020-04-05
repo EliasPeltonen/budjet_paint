@@ -16,7 +16,7 @@ class DrawArea() extends Panel {
   background = Color.white
   // Application doesn't detect changing of shape from shape menu, edit here to test 
   Interface.shapeButton.text = "Circle"
-  
+  var s = "Square"
 
   listenTo(mouse.clicks, mouse.moves, keys)
   var path = new geom.GeneralPath
@@ -44,7 +44,7 @@ class DrawArea() extends Panel {
       }
   
      
-  Interface.shapeButton.text match {
+  s match {
     case "Free" => {
       
       var points = scala.collection.mutable.Buffer()
@@ -151,6 +151,7 @@ class DrawArea() extends Panel {
       shapes -= shapes.last
       repaint()
   }
+
   
   
 }
