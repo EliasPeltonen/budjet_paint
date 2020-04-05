@@ -11,8 +11,8 @@ Tuo tapaaminen voisi olla hyödyllinen tässä vaiheessa.
 
 7.4
 Luokat          : Interface, DrawArea sekä trait Shape -> Circle, Square, Ellipse jne
-Toiminnallisuus : Sama ongelma vapaan piirron kanssa. Ympyrät toimivat, neliöit toimivat paitsi jos täyttyvät värillä. Muodon valinta ei toimi.
-                  Undo toimii muodoille (rajaton). New tyhjentää kuvan oikein.
+Toiminnallisuus : Sama ongelma vapaan piirron kanssa. Ympyrät toimivat, neliöt toimivat. Muodon valinta ei toimi.
+                  Undo toimii muodoille (rajaton). New tyhjentää kuvan oikein. Redo peruttaa viimeisimmän undon.
 Virheet         : Yllämainitut ja samat kuin edellisessä raportissa
 Työmäärä        : 20h?
 Edistyminen     : Taitaa edistyä 
