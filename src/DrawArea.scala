@@ -20,9 +20,8 @@ class DrawArea() extends Panel {
 
   listenTo(mouse.clicks, mouse.moves, keys)
   var path = new geom.GeneralPath
-  var circles = scala.collection.mutable.Map[scala.swing.Color, Vector[Int]]()
   var shapes  = scala.collection.mutable.Buffer[Shape]()
-  var squares = scala.collection.mutable.Map[scala.swing.Color, Vector[Int]]()
+
   
   override def paintComponent(g: Graphics2D): Unit = {
         super.paintComponent(g)
@@ -32,17 +31,7 @@ class DrawArea() extends Panel {
         if (hasFocus) g.drawString("Press 'c' to clear.", 10, h - 10)
         g.setColor(Interface.colorButton.background)
         g.draw(path)
-        if (!circles.isEmpty) { circles.foreach(x => { 
-          g.setColor(x._1) 
-          g.drawOval(x._2(0), x._2(1), x._2(2),x._2(3))         
-          })
-        } 
-        //  if (!squares.isEmpty) {
-        //  squares.foreach(x => { 
-        //  g.setColor(x._1) 
-        //  g.drawRect(x._2(0), x._2(1), x._2(2),x._2(3))         
-        //  })
-        //  }
+
         if (!shapes.isEmpty) {
           shapes.foreach(x => {
             g.setColor(x.color)
@@ -105,7 +94,7 @@ class DrawArea() extends Panel {
       def circleTo(p1:Point, p2: Point) = {
         val r = scala.math.sqrt(((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y)))
         shapes += new Circle(p1,p2, Interface.colorButton.background)
-        circles += ((Interface.colorButton.background, Vector((p1.x-r).toInt, (p1.y-r).toInt, (r*2).toInt, (r*2).toInt)))
+
 
       }
 
@@ -136,13 +125,7 @@ class DrawArea() extends Panel {
       
       def squareTo(p1:Point, p2:Point) {
         shapes += new Square(p1,p2, Interface.colorButton.background)
-        if(p1.x < p2.x) {
-          if (p1.y < p2.y) squares += ((Interface.colorButton.background, Vector(p1.x,p1.y, p2.x-p1.x, p2.y-p1.y))) 
-          else             squares += ((Interface.colorButton.background, Vector(p1.x,p1.y, p2.x-p1.x, p2.y-p1.y))) 
-        } else if (p1.x > p2.x)
-          if (p1.y < p2.y) squares += ((Interface.colorButton.background, Vector(p1.x,p1.y, p2.x-p1.x, p2.y-p1.y))) 
-          else             squares += ((Interface.colorButton.background, Vector(p1.x,p1.y, p2.x-p1.x, p2.y-p1.y))) 
-      }
+      } 
     }
     
     case "Ellipse" => ???
@@ -159,12 +142,13 @@ class DrawArea() extends Panel {
   newButton.reactions += {
     case clickEvent: ButtonClicked =>
       path = new geom.GeneralPath
+      shapes.clear()
       repaint()
   }
   
-  undoButton.reactions += {
+  Interface.undoButton.reactions += {
     case clickEvent: ButtonClicked => 
-      shapes.dropRight(1)
+      shapes -= shapes.last
       repaint()
   }
   
