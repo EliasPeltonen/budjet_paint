@@ -10,10 +10,10 @@ Edistyminen     : Vähän jäljessä.
 Tuo tapaaminen voisi olla hyödyllinen tässä vaiheessa.
 
 7.4
-Luokat          : Samat 
-Toiminnallisuus : Sama ongelma vapaan piirron kanssa. Ympyröitä, sekä neliöitä voi piirtää mutta vain yhden per väri. Muodon valinta ei toimi. 
+Luokat          : Interface, DrawArea sekä trait Shape -> Circle, Square, Ellipse jne
+Toiminnallisuus : Sama ongelma vapaan piirron kanssa. Ympyrät toimivat, neliöit toimivat paitsi jos täyttyvät värillä. Muodon valinta ei toimi. 
 Virheet         : Yllämainitut ja samat kuin edellisessä raportissa
 Työmäärä        : 20h?
-Edistyminen     : Jäljessä
+Edistyminen     : Taitaa edistyä 
 
 Edelleen vähän jumissa noiden ongelmien kanssa
