@@ -16,7 +16,8 @@ class DrawArea() extends Panel {
   background = Color.white
   // Application doesn't detect changing of shape from shape menu, edit here to test 
   Interface.shapeButton.text = "Circle"
-  var s = "Square"
+  var s = "Circle"
+  var redo: Option[Shape] = None
 
   listenTo(mouse.clicks, mouse.moves, keys)
   var path = new geom.GeneralPath
@@ -147,9 +148,20 @@ class DrawArea() extends Panel {
   }
   
   Interface.undoButton.reactions += {
-    case clickEvent: ButtonClicked => 
+    case clickEvent: ButtonClicked =>
+      redo = Some(shapes.last)
       shapes -= shapes.last
       repaint()
+  }
+  
+  redoButton.reactions += {
+    case clickEvent: ButtonClicked => {
+      if (redo != None) {
+        shapes += redo.get
+        redo = None
+        repaint()
+      }
+    }
   }
 
   
