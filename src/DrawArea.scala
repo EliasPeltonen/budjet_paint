@@ -17,8 +17,7 @@ class DrawArea() extends Panel {
   minimumSize = new Dimension(500,500)
   background = Color.white
   // Application doesn't detect changing of shape from shape menu, edit here to test 
-  Interface.shapeButton.text = "Circle"
-  var s = "Circle"
+  Interface.shapeButton.text = "Square"
   var redo: Option[Shape] = None
 
   listenTo(mouse.clicks, mouse.moves, keys)
@@ -39,7 +38,8 @@ class DrawArea() extends Panel {
           shapes.foreach(x => {
             g.setColor(x.color)
             if      (x.shape == "Circle") g.drawOval(x.pointVector(0), x.pointVector(1), x.pointVector(2), x.pointVector(3))
-            else if (x.shape == "Square") g.drawRect(x.pointVector(0), x.pointVector(1), x.pointVector(3), x.pointVector(3))
+            else if (x.shape == "Square") g.drawRect(x.pointVector(0), x.pointVector(1), x.pointVector(2), x.pointVector(3))
+            else if (x.shape == "Ellipse")g.drawOval(x.pointVector(0), x.pointVector(1), x.pointVector(2), x.pointVector(3))
           })
         }
         
@@ -47,7 +47,7 @@ class DrawArea() extends Panel {
       }
   
      
-  s match {
+  Interface.shapeButton.text match {
     case "Free" => {
       
       def lineTo(p: Point): Unit = {
@@ -123,7 +123,29 @@ class DrawArea() extends Panel {
       } 
     }
     
-    case "Ellipse" => ???
+    case "Ellipse" => {
+      var p1 = new Point(0,0)
+      var p2 = new Point(0,0)
+      reactions += {
+        case e: MousePressed =>
+          p1 = e.point
+          println(p1.x + " ja " + p1.y)
+          requestFocusInWindow()
+        case e: MouseReleased => { 
+          p2 = e.point
+          println(p2.x + " ja " + p2.y)
+          ellipseTo(p1,p2)
+          repaint()
+        }
+        case KeyTyped(_, 'c', _, _) =>
+          repaint()
+        case _: FocusLost => repaint()
+      }
+      
+      def ellipseTo(p1:Point, p2:Point) {
+        shapes += new Ellipse(p1,p2, Interface.colorButton.background)
+      } 
+    }
     
     case _ => 
 
@@ -185,9 +207,11 @@ class DrawArea() extends Panel {
   
   Interface.undoButton.reactions += {
     case clickEvent: ButtonClicked =>
-      redo = Some(shapes.last)
-      shapes -= shapes.last
-      repaint()
+      if(!shapes.isEmpty) {
+        redo = Some(shapes.last)
+        shapes -= shapes.last
+        repaint()
+      }
   }
   
   redoButton.reactions += {
@@ -229,8 +253,19 @@ class Square(val p1: Point, val p2: Point, val color: Color) extends Shape {
     if (p1.y < p2.y) {pointVector = Vector(p1.x,p1.y, p2.x-p1.x, p2.y-p1.y)}
     else             {pointVector = Vector(p1.x,p2.y, p2.x-p1.x, p1.y-p2.y)}
   } else {
-    if (p1.y < p2.y) {pointVector = Vector(p1.x-(p1.x-p2.x),p1.y, p1.x-p2.x, p2.y-p1.y)}
-    else             {pointVector = Vector(p2.x,p2.y, p2.x-p1.x, p1.y-p2.y)}
+    if (p1.y < p2.y) {pointVector = Vector(p2.x,p1.y, p1.x-p2.x, p2.y-p1.y)}
+    else             {pointVector = Vector(p2.x,p2.y, p1.x-p2.x, p1.y-p2.y)}
+  }
+}
+
+class Ellipse(val p1: Point, val p2: Point, val color: Color) extends Shape {
+  val shape = "Ellipse"
+  if(p1.x < p2.x) {
+    if (p1.y < p2.y) {pointVector = Vector(p1.x,p1.y, p2.x-p1.x, p2.y-p1.y)}
+    else             {pointVector = Vector(p1.x,p2.y, p2.x-p1.x, p1.y-p2.y)}
+  } else {
+    if (p1.y < p2.y) {pointVector = Vector(p2.x, p1.y, p1.x-p2.x, p2.y-p1.y)}
+    else             {pointVector = Vector(p2.x, p2.y, p1.x-p2.x, p1.y-p2.y)}
   }
 }
 
