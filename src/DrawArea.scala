@@ -174,11 +174,11 @@ class Circle(p1: Point, p2: Point, val color: Color) extends Shape {
 class Square(p1: Point, p2: Point, val color: Color) extends Shape {
   val shape = "Square"
   if(p1.x < p2.x) {
-    if (p1.y < p2.y) pointVector = Vector(p1.x,p1.y, p2.x-p1.x, p2.y-p1.y)
-    else             pointVector = Vector(p1.x,p1.y, p2.x-p1.x, p2.y-p1.y)
-  } else if (p1.x > p2.x) {
-    if (p1.y < p2.y) pointVector = Vector(p1.x,p1.y, p2.x-p1.x, p2.y-p1.y)
-    else             pointVector = Vector(p1.x,p1.y, p2.x-p1.x, p2.y-p1.y)
+    if (p1.y < p2.y) {pointVector = Vector(p1.x,p1.y, p2.x-p1.x, p2.y-p1.y)}
+    else             {pointVector = Vector(p1.x,p2.y, p2.x-p1.x, p1.y-p2.y)}
+  } else {
+    if (p1.y < p2.y) {pointVector = Vector(p1.x-(p1.x-p2.x),p1.y, p1.x-p2.x, p2.y-p1.y)}
+    else             {pointVector = Vector(p2.x,p2.y, p2.x-p1.x, p1.y-p2.y)}
   }
 }
 
