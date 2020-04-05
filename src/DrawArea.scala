@@ -138,14 +138,42 @@ class DrawArea() extends Panel {
     val file = new File("testi")
     val bw = new BufferedWriter(new FileWriter(file))
     for(i <- s) {
-      bw.write(i.color + ";" + i.pointVector + ";" + i.shape + "\n")      
+      bw.write(i.color.getRed + ":" + i.color.getGreen + ":" + i.color.getBlue + ";" + i.p1.x + ":" + i.p1.y + ":" + i.p2.x + ":" + i.p2.y + ";" + i.shape + "\n")      
     }
     bw.close()
+  }
+  
+  def load(filename: String) {
+    val bufferedSource = scala.io.Source.fromFile(filename)
+    for (line <- bufferedSource.getLines) {
+      val parts = line.split(";")
+      parts(2) match {
+        case "Circle" => {
+          val color  = parts(0).split(":")
+          val points = parts(1).split(":")
+          shapes += new Circle(new Point(points(0).toInt,points(1).toInt), new Point(points(2).toInt, points(3).toInt), new Color(color(0).toInt, color(1).toInt, color(2).toInt))          
+        }
+        case "Square" => {
+          val color  = parts(0).split(":")
+          val points = parts(1).split(":")
+          shapes += new Square(new Point(points(0).toInt,points(1).toInt), new Point(points(2).toInt, points(3).toInt), new Color(color(0).toInt, color(1).toInt, color(2).toInt)) 
+        }
+      }
+    }
+    bufferedSource.close()
   }
   
   saveButton.reactions += {
     case clickEvent: ButtonClicked => 
       save(shapes)
+  }
+  
+  loadButton.reactions += {
+    case clickEvent: ButtonClicked => {
+      shapes.clear()
+      load("testi")
+      repaint()
+    }
   }
   
   newButton.reactions += {
@@ -182,16 +210,20 @@ trait Shape {
   val color: Color
   var pointVector: Vector[Int] = Vector(0,0,0,0)
   val shape: String
+  val p1: Point
+  val p2: Point
+  
 }
 
-class Circle(p1: Point, p2: Point, val color: Color) extends Shape {
+class Circle(val p1: Point, val p2: Point, val color: Color) extends Shape {
   val shape = "Circle"
+  
   val r = scala.math.sqrt(((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y)))
   pointVector = Vector((p1.x-r).toInt, (p1.y-r).toInt, (r*2).toInt, (r*2).toInt)
   
 }
   
-class Square(p1: Point, p2: Point, val color: Color) extends Shape {
+class Square(val p1: Point, val p2: Point, val color: Color) extends Shape {
   val shape = "Square"
   if(p1.x < p2.x) {
     if (p1.y < p2.y) {pointVector = Vector(p1.x,p1.y, p2.x-p1.x, p2.y-p1.y)}
