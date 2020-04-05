@@ -19,6 +19,7 @@ object Interface extends SimpleSwingApplication {
   val colorButton = new Button("Color")
   colorButton.background = new Color(255,255,255)
   val shapeButton = new Button("Shape")
+  val saveButton = new Button("Save")
 
   
   colorButton.reactions += {
@@ -48,9 +49,10 @@ object Interface extends SimpleSwingApplication {
     
     
     val topBar     = new FlowPanel
-    topBar.maximumSize = new Dimension(500,100)
+    topBar.maximumSize = new Dimension(100,100)
     topBar.contents += newButton
     topBar.contents += undoButton
+    topBar.contents += saveButton
     topBar.contents += redoButton
     topBar.contents += colorButton
     topBar.contents += shapeButton

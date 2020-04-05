@@ -1,4 +1,6 @@
 import Interface._
+import java.io._
+import scala.collection.mutable.Buffer
 import java.awt.Graphics2D
 import scala.swing._
 import java.awt.geom
@@ -21,7 +23,7 @@ class DrawArea() extends Panel {
 
   listenTo(mouse.clicks, mouse.moves, keys)
   var path = new geom.GeneralPath
-  var shapes  = scala.collection.mutable.Buffer[Shape]()
+  var shapes  = Buffer[Shape]()
 
   
   override def paintComponent(g: Graphics2D): Unit = {
@@ -47,8 +49,6 @@ class DrawArea() extends Panel {
      
   s match {
     case "Free" => {
-      
-      var points = scala.collection.mutable.Buffer()
       
       def lineTo(p: Point): Unit = {
         path.lineTo(p.x, p.y); repaint()
@@ -95,14 +95,8 @@ class DrawArea() extends Panel {
       def circleTo(p1:Point, p2: Point) = {
         val r = scala.math.sqrt(((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y)))
         shapes += new Circle(p1,p2, Interface.colorButton.background)
-
-
       }
-
-        
-        
-  
-
+      
     }
     
     case "Square" => {
@@ -138,6 +132,20 @@ class DrawArea() extends Panel {
    
   override def repaint() {
     super.repaint()
+  }
+  
+  def save(s:Buffer[Shape]) {
+    val file = new File("testi")
+    val bw = new BufferedWriter(new FileWriter(file))
+    for(i <- s) {
+      bw.write(i.color + ";" + i.pointVector + ";" + i.shape + "\n")      
+    }
+    bw.close()
+  }
+  
+  saveButton.reactions += {
+    case clickEvent: ButtonClicked => 
+      save(shapes)
   }
   
   newButton.reactions += {
