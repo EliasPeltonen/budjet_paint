@@ -171,7 +171,7 @@ class DrawArea() extends Panel {
             }
             
           }
-          redo = Some(lines)
+          redo = Some(lines.reverse)
           for(i <- lines) shapes -= i
           repaint()
         }
