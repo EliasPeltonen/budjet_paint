@@ -11,11 +11,10 @@ Tuo tapaaminen voisi olla hyödyllinen tässä vaiheessa.
 
 7.4
 Luokat          : Interface, DrawArea sekä trait Shape -> Circle, Square, Ellipse jne
-Toiminnallisuus : Vapaa piirto toimii vihdoinkin mutta saattaa olla aika raskas koneelle. Ympyrät, neliöt, ellipsit toimivat. Muodon valinta ei toimi.
+Toiminnallisuus : Vapaa piirto toimii vihdoinkin mutta saattaa olla aika raskas koneelle. Ympyrät, neliöt, ellipsit toimivat. Muodon valinta toimii.
                   Undo toimii muodoille (rajaton). New tyhjentää kuvan oikein. Redo peruttaa viimeisimmän undon.
                   Tallentaminen ja lataaminen toimivat. Tiedoston nimeä ei voi vielä muuttaa.
-Virheet         : Yllämainitut ja samat kuin edellisessä raportissa
-Työmäärä        : 20h?
-Edistyminen     : Edellä? 
+Virheet         : 
+Työmäärä        : 25h?
+Edistyminen     : Edellä. Keskivaikea oikeastaan valmis. 
 
-Edelleen vähän jumissa noiden ongelmien kanssa

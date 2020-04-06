@@ -1,4 +1,5 @@
 import Interface._
+import scala.util.control.Breaks._
 import java.io._
 import scala.collection.mutable.Buffer
 import java.awt.Graphics2D
@@ -17,10 +18,7 @@ class DrawArea() extends Panel {
   minimumSize = new Dimension(500,565)
   maximumSize = new Dimension(500,565)
   background = Color.white
-  // Application doesn't detect changing of shape from shape menu, edit here to test 
-  Interface.shapeButton.text = "Circle"
-  var redo: Option[Shape] = None
-
+  var redo: Option[Buffer[Shape]] = None
   listenTo(mouse.clicks, mouse.moves, keys)
   var shapes  = Buffer[Shape]()
 
@@ -29,8 +27,7 @@ class DrawArea() extends Panel {
         super.paintComponent(g)
         g.setColor(new Color(100, 100, 100))
         val h = size.height
-        g.drawString("Press left mouse button and drag to paint.", 10, h - 26)
-        if (hasFocus) g.drawString("Press 'c' to clear.", 10, h - 10)
+        g.drawString("Press left mouse button and drag to paint.", 10, h - 20)
         g.setColor(Interface.colorButton.background)
 
         if (!shapes.isEmpty) {
@@ -44,37 +41,32 @@ class DrawArea() extends Panel {
         }
       }
   
-      var p1 = new Point(0,0)
-      var p2 = new Point(0,0)
-            
-      reactions += {
-        case e: MousePressed =>
-          p1 = e.point
-          requestFocusInWindow()
-        case e: MouseDragged  => {
-          if(Interface.shapeButton.text == "Free") {
-            p2 = e.point
-            shapes += new Line(p1,p2, Interface.colorButton.background)
-            repaint()
-            p1 = e.point}
-        }
-        case e: MouseReleased => {
-          p2 = e.point
-          Interface.shapeButton.text match {
-            case "Circle"   => circleTo(p1,p2)
-            case "Ellipse"  => ellipseTo(p1,p2)
-            case "Square"   => squareTo(p1,p2)
-            case "Free"     => shapes += new Line(p1,p2, Interface.colorButton.background)
-            case _ =>
-          }
-          repaint()
-        }
-        case KeyTyped(_, 'c', _, _) =>
-          repaint()
-        case _: FocusLost => repaint()
+  var p1 = new Point(0,0)
+  var p2 = new Point(0,0)
+        
+  reactions += {
+    case e: MousePressed =>
+      p1 = e.point
+      requestFocusInWindow()
+    case e: MouseDragged  => {
+      if(Interface.shapeButton.text == "Free") {
+        p2 = e.point
+        shapes += new Line(p1,p2, Interface.colorButton.background)
+        repaint()
+        p1 = e.point}
+    }
+    case e: MouseReleased => {
+      p2 = e.point
+      Interface.shapeButton.text match {
+        case "Circle"   => circleTo(p1,p2)
+        case "Ellipse"  => ellipseTo(p1,p2)
+        case "Square"   => squareTo(p1,p2)
+        case "Free"     => shapes += new Line(p1,p2, Interface.colorButton.background)
+        case _ =>
       }
-  
-      /* records the dragging */    
+      repaint()
+    }
+  } 
    
   def circleTo(p1:Point, p2: Point) = {
     val r = scala.math.sqrt(((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y)))
@@ -85,22 +77,37 @@ class DrawArea() extends Panel {
   }     
   def ellipseTo(p1:Point, p2:Point) {
     shapes += new Ellipse(p1,p2, Interface.colorButton.background)
-  } 
+  }
     
   override def repaint() {
     super.repaint()
   }
   
+    
   def save(s:Buffer[Shape]) {
-    val file = new File("testi")
-    val bw = new BufferedWriter(new FileWriter(file))
-    for(i <- s) {
-      bw.write(i.color.getRed + ":" + i.color.getGreen + ":" + i.color.getBlue + ";" + i.p1.x + ":" + i.p1.y + ":" + i.p2.x + ":" + i.p2.y + ";" + i.shape + "\n")      
+    val fileText = new Frame
+    val cont = new FlowPanel
+    val output = new TextField("", 20)
+    val submitButton = new Button("Submit")
+    submitButton.reactions += {
+      case clickEvent: ButtonClicked =>
+        val file = new File(output.text)
+        val bw = new BufferedWriter(new FileWriter(file))
+        for(i <- s) {
+          bw.write(i.color.getRed + ":" + i.color.getGreen + ":" + i.color.getBlue + ";" + i.p1.x + ":" + i.p1.y + ":" + i.p2.x + ":" + i.p2.y + ";" + i.shape + "\n")      
+        }
+        bw.close()
+        fileText.close()       
     }
-    bw.close()
+    cont.contents += new Label("Enter filename:")
+    cont.contents += output
+    cont.contents += submitButton
+    fileText.contents = cont
+    fileText.open()
   }
   
   def load(filename: String) {
+    val filen = new FileChooser(new File("."))
     val bufferedSource = scala.io.Source.fromFile(filename)
     for (line <- bufferedSource.getLines) {
       val parts = line.split(";")
@@ -147,18 +154,43 @@ class DrawArea() extends Panel {
   Interface.undoButton.reactions += {
     case clickEvent: ButtonClicked =>
       if(!shapes.isEmpty) {
-        redo = Some(shapes.last)
-        shapes -= shapes.last
-        repaint()
+        if (shapes.last.shape != "Line") {
+          redo = Some(Buffer(shapes.last))
+          shapes -= shapes.last
+          repaint() 
+        } else {
+          var lines = Buffer[Shape]()
+          breakable {
+            for (i <- shapes.size-1 to 0 by -1) {
+               if (i != 0 && shapes(i).p1 == shapes(i-1).p2) {
+                 lines += shapes(i)
+               } else {
+                 lines += shapes(i)
+                 break
+               }
+            }
+            
+          }
+          redo = Some(lines)
+          for(i <- lines) shapes -= i
+          repaint()
+        }
+        
       }
   }
   
   redoButton.reactions += {
     case clickEvent: ButtonClicked => {
       if (redo != None) {
-        shapes += redo.get
-        redo = None
-        repaint()
+        if (redo.get.size == 1) {
+          shapes += redo.get(0)
+          redo = None
+          repaint()
+        } else {
+          redo.get.foreach(shapes += _)
+          redo = None
+          repaint()
+        }
       }
     }
   }
