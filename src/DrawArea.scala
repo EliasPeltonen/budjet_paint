@@ -17,7 +17,7 @@ class DrawArea() extends Panel {
   minimumSize = new Dimension(500,500)
   background = Color.white
   // Application doesn't detect changing of shape from shape menu, edit here to test 
-  Interface.shapeButton.text = "Free"
+  Interface.shapeButton.text = "Circle"
   var redo: Option[Shape] = None
 
   listenTo(mouse.clicks, mouse.moves, keys)
@@ -41,13 +41,8 @@ class DrawArea() extends Panel {
             else if (x.shape == "Line")   g.drawLine(x.pointVector(0), x.pointVector(1), x.pointVector(2), x.pointVector(3))
           })
         }
-        
-
       }
   
-     
-  Interface.shapeButton.text match {
-    case "Free" => {
       var p1 = new Point(0,0)
       var p2 = new Point(0,0)
             
@@ -56,14 +51,21 @@ class DrawArea() extends Panel {
           p1 = e.point
           requestFocusInWindow()
         case e: MouseDragged  => {
-          p2 = e.point
-          shapes += new Line(p1,p2, Interface.colorButton.background)
-          repaint()
-          p1 = e.point
+          if(Interface.shapeButton.text == "Free") {
+            p2 = e.point
+            shapes += new Line(p1,p2, Interface.colorButton.background)
+            repaint()
+            p1 = e.point}
         }
         case e: MouseReleased => {
           p2 = e.point
-          shapes += new Line(p1,p2, Interface.colorButton.background)
+          Interface.shapeButton.text match {
+            case "Circle"   => circleTo(p1,p2)
+            case "Ellipse"  => ellipseTo(p1,p2)
+            case "Square"   => squareTo(p1,p2)
+            case "Free"     => shapes += new Line(p1,p2, Interface.colorButton.background)
+            case _ =>
+          }
           repaint()
         }
         case KeyTyped(_, 'c', _, _) =>
@@ -71,87 +73,19 @@ class DrawArea() extends Panel {
         case _: FocusLost => repaint()
       }
   
-      /* records the dragging */
-
-    }
-    
-    case "Circle" => {
-      var p1 = new Point(0,0)
-      var p2 = new Point(0,0)
-      reactions += {
-        case e: MousePressed =>
-          p1 = e.point
-          requestFocusInWindow()
-        case e: MouseReleased => { 
-          p2 = e.point
-          circleTo(p1,p2)
-          repaint()
-        }
-        case KeyTyped(_, 'c', _, _) =>
-          repaint()
-        case _: FocusLost => repaint()
-      }
-      
-      def circleTo(p1:Point, p2: Point) = {
-        val r = scala.math.sqrt(((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y)))
-        shapes += new Circle(p1,p2, Interface.colorButton.background)
-      }
-      
-    }
-    
-    case "Square" => {
-      var p1 = new Point(0,0)
-      var p2 = new Point(0,0)
-      reactions += {
-        case e: MousePressed =>
-          p1 = e.point
-          println(p1.x + " ja " + p1.y)
-          requestFocusInWindow()
-        case e: MouseReleased => { 
-          p2 = e.point
-          println(p2.x + " ja " + p2.y)
-          squareTo(p1,p2)
-          repaint()
-        }
-        case KeyTyped(_, 'c', _, _) =>
-          repaint()
-        case _: FocusLost => repaint()
-      }
-      
-      def squareTo(p1:Point, p2:Point) {
-        shapes += new Square(p1,p2, Interface.colorButton.background)
-      } 
-    }
-    
-    case "Ellipse" => {
-      var p1 = new Point(0,0)
-      var p2 = new Point(0,0)
-      reactions += {
-        case e: MousePressed =>
-          p1 = e.point
-          println(p1.x + " ja " + p1.y)
-          requestFocusInWindow()
-        case e: MouseReleased => { 
-          p2 = e.point
-          println(p2.x + " ja " + p2.y)
-          ellipseTo(p1,p2)
-          repaint()
-        }
-        case KeyTyped(_, 'c', _, _) =>
-          repaint()
-        case _: FocusLost => repaint()
-      }
-      
-      def ellipseTo(p1:Point, p2:Point) {
-        shapes += new Ellipse(p1,p2, Interface.colorButton.background)
-      } 
-    }
-    
-    case _ => 
-
-  }
-
+      /* records the dragging */    
    
+  def circleTo(p1:Point, p2: Point) = {
+    val r = scala.math.sqrt(((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y)))
+    shapes += new Circle(p1,p2, Interface.colorButton.background)
+  }
+  def squareTo(p1:Point, p2:Point) {
+    shapes += new Square(p1,p2, Interface.colorButton.background)
+  }     
+  def ellipseTo(p1:Point, p2:Point) {
+    shapes += new Ellipse(p1,p2, Interface.colorButton.background)
+  } 
+    
   override def repaint() {
     super.repaint()
   }
@@ -228,7 +162,6 @@ class DrawArea() extends Panel {
     }
   }
 }
-
 
 
 trait Shape {
