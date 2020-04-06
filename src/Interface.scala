@@ -50,7 +50,7 @@ object Interface extends SimpleSwingApplication {
     
     
     val topBar     = new FlowPanel
-    topBar.maximumSize = new Dimension(100,100)
+    topBar.maximumSize = new Dimension(500,35)
     topBar.contents += newButton
     topBar.contents += undoButton
     topBar.contents += redoButton
@@ -61,7 +61,7 @@ object Interface extends SimpleSwingApplication {
     
     val drawArea = new DrawArea()
       
-    val container = new GridPanel(2,0)
+    val container = new BoxPanel(Orientation.Vertical)
     container.contents += topBar
     container.contents += drawArea
     
@@ -170,8 +170,7 @@ object Interface extends SimpleSwingApplication {
       def retColor(button: Button) = {
         Interface.colorButton.background = button.background
         this.close()
-      }
-      
+      }      
   }
     
   val shapePanel = new Frame {

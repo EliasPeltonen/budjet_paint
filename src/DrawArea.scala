@@ -14,7 +14,8 @@ import scala.swing.event._
 import java.awt.RenderingHints
 
 class DrawArea() extends Panel {
-  minimumSize = new Dimension(500,500)
+  minimumSize = new Dimension(500,565)
+  maximumSize = new Dimension(500,565)
   background = Color.white
   // Application doesn't detect changing of shape from shape menu, edit here to test 
   Interface.shapeButton.text = "Circle"
