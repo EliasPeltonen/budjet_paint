@@ -37,9 +37,9 @@ object Interface extends SimpleSwingApplication {
     title = "Draw"
     resizable = false
     
-    val width      = 500
-    val height     = 600
-    val fullHeight = 600
+    val width      = 600
+    val height     = 700
+    val fullHeight = 700
     
     minimumSize   = new Dimension(width,fullHeight)
     preferredSize = new Dimension(width,fullHeight)
@@ -50,7 +50,7 @@ object Interface extends SimpleSwingApplication {
     
     
     val topBar     = new FlowPanel
-    topBar.maximumSize = new Dimension(500,35)
+    topBar.maximumSize = new Dimension(600,35)
     topBar.contents += newButton
     topBar.contents += undoButton
     topBar.contents += redoButton
@@ -174,7 +174,7 @@ object Interface extends SimpleSwingApplication {
   }
     
   val shapePanel = new Frame {
-    val width  = 500
+    val width  = 600
     val height = 100
     minimumSize = new Dimension(width,height)
     
@@ -182,15 +182,17 @@ object Interface extends SimpleSwingApplication {
     val circleButton = new Button("Circle")
     val squareButton = new Button("Square")
     val ellipseButton = new Button("Ellipse")
+    val textButton = new Button("Text")
     
     contents = new GridPanel(1,4) {
-      contents ++= Vector(freeButton, circleButton, squareButton, ellipseButton)
-      listenTo(freeButton, circleButton, squareButton, ellipseButton)
+      contents ++= Vector(freeButton, circleButton, squareButton, ellipseButton, textButton)
+      listenTo(freeButton, circleButton, squareButton, ellipseButton, textButton)
       reactions += {
         case ButtonClicked(`freeButton`)    => setShape(freeButton)
         case ButtonClicked(`circleButton`)  => setShape(circleButton)
         case ButtonClicked(`squareButton`)  => setShape(squareButton)
         case ButtonClicked(`ellipseButton`) => setShape(ellipseButton)
+        case ButtonClicked(`textButton`) => setShape(textButton)
       }
     }
     
