@@ -23,6 +23,7 @@ class DrawArea() extends Panel {
   listenTo(mouse.clicks, mouse.moves, keys)
   var strings = Buffer[Text]()
   var shapes  = Buffer[Shape]()
+  var group = Buffer[Shape]()
 
   
   override def paintComponent(g: Graphics2D): Unit = {
@@ -131,6 +132,7 @@ class DrawArea() extends Panel {
     fileText.open()
 
   }
+  
     
   override def repaint() {
     super.repaint()
@@ -144,7 +146,7 @@ class DrawArea() extends Panel {
     val submitButton = new Button("Submit")
     submitButton.reactions += {
       case clickEvent: ButtonClicked =>
-        val file = new File(output.text)
+        val file = new File(output.text + ".draw")
         val bw = new BufferedWriter(new FileWriter(file))
         for(i <- s) {
           bw.write(i.color.getRed + ":" + i.color.getGreen + ":" + i.color.getBlue + ";" + i.p1.x + ":" + i.p1.y + ":" + i.p2.x + ":" + i.p2.y + ";" + i.shape + "\n")      
@@ -162,33 +164,49 @@ class DrawArea() extends Panel {
     fileText.open()
   }
   
+  
+  def chooseFile(): Option[File] = {
+    val chooser = new FileChooser(new File("."))
+    val result = chooser.showOpenDialog(null)
+    if (result == FileChooser.Result.Approve) {
+      println("Approve -- " + chooser.selectedFile)
+      Some(chooser.selectedFile)
+    } else None
+  }
+  
   def load(filename: String) {
-    val bufferedSource = scala.io.Source.fromFile(filename)
-    for (line <- bufferedSource.getLines) {
-      val parts = line.split(";")
-      parts(2) match {
-        case "Circle" => {
-          val color  = parts(0).split(":")
-          val points = parts(1).split(":")
-          shapes += new Circle(new Point(points(0).toInt,points(1).toInt), new Point(points(2).toInt, points(3).toInt), new Color(color(0).toInt, color(1).toInt, color(2).toInt))          
-        }
-        case "Square" => {
-          val color  = parts(0).split(":")
-          val points = parts(1).split(":")
-          shapes += new Square(new Point(points(0).toInt,points(1).toInt), new Point(points(2).toInt, points(3).toInt), new Color(color(0).toInt, color(1).toInt, color(2).toInt)) 
-        }
-        case "Line" => {
-          val color  = parts(0).split(":")
-          val points = parts(1).split(":")
-          shapes += new Line(new Point(points(0).toInt,points(1).toInt), new Point(points(2).toInt, points(3).toInt), new Color(color(0).toInt, color(1).toInt, color(2).toInt)) 
-        }
-        case "Text" => {
-          val points = parts(0).split(":")
-          strings += new Text(new Point(points(0).toInt,points(1).toInt), new Point(points(2).toInt, points(3).toInt), parts(1).toInt, parts(3))
+    val file = chooseFile()
+    if (file != None && file.get.getName.takeRight(5) == ".draw") {
+      
+      val bufferedSource = scala.io.Source.fromFile(file.get)
+      for (line <- bufferedSource.getLines) {
+        val parts = line.split(";")
+        parts(2) match {
+          case "Circle" => {
+            val color  = parts(0).split(":")
+            val points = parts(1).split(":")
+            shapes += new Circle(new Point(points(0).toInt,points(1).toInt), new Point(points(2).toInt, points(3).toInt), new Color(color(0).toInt, color(1).toInt, color(2).toInt))          
+          }
+          case "Square" => {
+            val color  = parts(0).split(":")
+            val points = parts(1).split(":")
+            shapes += new Square(new Point(points(0).toInt,points(1).toInt), new Point(points(2).toInt, points(3).toInt), new Color(color(0).toInt, color(1).toInt, color(2).toInt)) 
+          }
+          case "Line" => {
+            val color  = parts(0).split(":")
+            val points = parts(1).split(":")
+            shapes += new Line(new Point(points(0).toInt,points(1).toInt), new Point(points(2).toInt, points(3).toInt), new Color(color(0).toInt, color(1).toInt, color(2).toInt)) 
+          }
+          case "Text" => {
+            val points = parts(0).split(":")
+            strings += new Text(new Point(points(0).toInt,points(1).toInt), new Point(points(2).toInt, points(3).toInt), parts(1).toInt, parts(3))
+          }
         }
       }
-    }
-    bufferedSource.close()
+      bufferedSource.close()
+  } else {
+    Dialog.showMessage(this, "Invalid File", "Error")
+  }
   }
   
   saveButton.reactions += {
@@ -299,7 +317,8 @@ class Square(val p1: Point, val p2: Point, val color: Color) extends Shape {
     else             {pointVector = Vector(p2.x,p2.y, p1.x-p2.x, p1.y-p2.y)}
   }
   def contains(p: Point): Boolean = {
-    false
+    if (p.distance(p1) < p1.distance(p2) && p.distance(p2) < p1.distance(p2)) true 
+    else false
   }
 }
 
