@@ -1,19 +1,16 @@
-import Interface._
+package Draw
 
+import Interface._
 import scala.util.control.Breaks._
 import java.io._
 import scala.collection.mutable.Buffer
 import java.awt.Graphics2D._
 import scala.swing._
-import java.awt.geom
 import java.awt.Color
-import javax.imageio.ImageIO
 import java.io.File
-import java.awt.image.BufferedImage
-import java.awt.GraphicsConfiguration
-import java.awt.Transparency
 import scala.swing.event._
 import java.awt.RenderingHints
+import scala.Vector
 
 class DrawArea() extends Panel {
   minimumSize = new Dimension(600,700)
@@ -23,7 +20,7 @@ class DrawArea() extends Panel {
   listenTo(mouse.clicks, mouse.moves, keys)
   var strings = Buffer[Text]()
   var shapes  = Buffer[Shape]()
-  var group = Buffer[Shape]()
+
 
   
   override def paintComponent(g: Graphics2D): Unit = {
@@ -47,6 +44,7 @@ class DrawArea() extends Panel {
         
         if (!strings.isEmpty) {
           strings.foreach(x => {
+            g.setColor(x.color)
             g.setFont(new Font("Arial", 20,20))
             g.drawString(x.text,x.p1.x, x.p1.y)
             })
@@ -121,7 +119,7 @@ class DrawArea() extends Panel {
     val submitButton = new Button("Submit")
     submitButton.reactions += {
       case clickEvent: ButtonClicked => {
-        strings += new Text(p1,p2, 20, output.text)
+        strings += new Text(p1,p2, 20, output.text, Interface.colorButton.background)
         fileText.close()
             repaint()
       }
@@ -152,7 +150,7 @@ class DrawArea() extends Panel {
           bw.write(i.color.getRed + ":" + i.color.getGreen + ":" + i.color.getBlue + ";" + i.p1.x + ":" + i.p1.y + ":" + i.p2.x + ":" + i.p2.y + ";" + i.shape + "\n")      
         }
         for(j <- x) {
-          bw.write(j.p1.x + ":" + j.p1.y + ":" + j.p2.x + ":" + j.p2.y + ";" + j.size + ";" + "Text" + ";" + j.text+ "\n") 
+          bw.write(j.p1.x + ":" + j.p1.y + ":" + j.p2.x + ":" + j.p2.y + ";" + j.size + ";" + "Text" + ";" + j.text + ";" + j.color.getRed + ":" + j.color.getGreen + ":" + j.color.getBlue + "\n") 
         }
         bw.close()
         fileText.close()       
@@ -174,7 +172,7 @@ class DrawArea() extends Panel {
     } else None
   }
   
-  def load(filename: String) {
+  def load() {
     val file = chooseFile()
     if (file != None && file.get.getName.takeRight(5) == ".draw") {
       
@@ -199,7 +197,8 @@ class DrawArea() extends Panel {
           }
           case "Text" => {
             val points = parts(0).split(":")
-            strings += new Text(new Point(points(0).toInt,points(1).toInt), new Point(points(2).toInt, points(3).toInt), parts(1).toInt, parts(3))
+            val color  = parts(4).split(":")
+            strings += new Text(new Point(points(0).toInt,points(1).toInt), new Point(points(2).toInt, points(3).toInt), parts(1).toInt, parts(3), new Color(color(0).toInt, color(1).toInt, color(2).toInt))
           }
         }
       }
@@ -217,7 +216,7 @@ class DrawArea() extends Panel {
   loadButton.reactions += {
     case clickEvent: ButtonClicked => {
       shapes.clear()
-      load("testi")
+      load()
       repaint()
     }
   }
@@ -225,6 +224,7 @@ class DrawArea() extends Panel {
   newButton.reactions += {
     case clickEvent: ButtonClicked =>
       shapes.clear()
+      strings.clear()
       repaint()
   }
   
@@ -275,7 +275,7 @@ class DrawArea() extends Panel {
 
 
 
-class Text(val p1: Point, val p2: Point, val size: Int, val text:String) 
+class Text(val p1: Point, val p2: Point, val size: Int, val text:String, val color: Color) 
 
 trait Shape {
   val color: Color
@@ -283,16 +283,14 @@ trait Shape {
   val shape: String
   val p1: Point
   val p2: Point
-  def contains(p: Point): Boolean
+
   
 }
 
 class Line(val p1: Point, val p2: Point, val color: Color) extends Shape {
   val shape = "Line"
   pointVector = Vector(p1.x, p1.y, p2.x, p2.y)
-  def contains(p: Point): Boolean = {
-    p == p1 || p == p2
-  }
+
 }
 
 class Circle(val p1: Point, val p2: Point, val color: Color) extends Shape {
@@ -300,11 +298,7 @@ class Circle(val p1: Point, val p2: Point, val color: Color) extends Shape {
   
   val r = scala.math.sqrt(((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y)))
   pointVector = Vector((p1.x-r).toInt, (p1.y-r).toInt, (r*2).toInt, (r*2).toInt)
-  
-  def contains(p: Point): Boolean = {
-    p.distance(p1) == r
-  }
-  
+
 }
   
 class Square(val p1: Point, val p2: Point, val color: Color) extends Shape {
@@ -316,10 +310,7 @@ class Square(val p1: Point, val p2: Point, val color: Color) extends Shape {
     if (p1.y < p2.y) {pointVector = Vector(p2.x,p1.y, p1.x-p2.x, p2.y-p1.y)}
     else             {pointVector = Vector(p2.x,p2.y, p1.x-p2.x, p1.y-p2.y)}
   }
-  def contains(p: Point): Boolean = {
-    if (p.distance(p1) < p1.distance(p2) && p.distance(p2) < p1.distance(p2)) true 
-    else false
-  }
+
 }
 
 class Ellipse(val p1: Point, val p2: Point, val color: Color) extends Shape {
@@ -331,9 +322,7 @@ class Ellipse(val p1: Point, val p2: Point, val color: Color) extends Shape {
     if (p1.y < p2.y) {pointVector = Vector(p2.x, p1.y, p1.x-p2.x, p2.y-p1.y)}
     else             {pointVector = Vector(p2.x, p2.y, p1.x-p2.x, p1.y-p2.y)}
   }
-  def contains(p: Point): Boolean = {
-    false
-  }
+
 }
 
 
